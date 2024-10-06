@@ -1,0 +1,129 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoVoxel.Engine.Voxels;
+using System;
+
+namespace MonoVoxel.Engine.Utils {
+    
+    public class MonoVoxelCamera {
+
+        private Matrix m_projection;
+        private Matrix m_view;
+        private Matrix m_world;
+        private Matrix m_cache;
+
+        private Vector3 m_up;
+        private Vector3 m_right;
+        private Vector3 m_forward;
+
+        private float m_fov;
+        private float m_yaw;
+        private float m_pitch;
+        private float m_pitch_min;
+        private float m_pitch_max;
+        private Vector3 m_location;
+
+        public Matrix Projection => m_projection;
+        public Matrix View => m_view;
+        public Matrix World => m_world;
+
+        public float Yaw => m_yaw;
+        public float Pitch => m_pitch;
+        public Vector3 Location => m_location;
+
+        public Matrix Cache => m_cache;
+
+        public MonoVoxelCamera( ) { 
+            m_projection = Matrix.Identity;
+            m_view       = Matrix.Identity;
+            m_world      = Matrix.Identity;
+
+            m_up      = new Vector3( 0.0f, 1.0f, 0.0f );
+            m_right   = new Vector3( 1.0f, 0.0f, 0.0f );
+            m_forward = new Vector3( 0.0f, 0.0f, -1.0f );
+
+            m_fov       = MathHelper.ToRadians( 50 );
+            m_yaw       = 0.0f;
+            m_pitch     = 0.0f;
+            m_pitch_min = -MathHelper.ToRadians( 89 );
+            m_pitch_max =  MathHelper.ToRadians( 89 );
+
+            m_location = new Vector3(
+                ( MonoVoxelEngine.GridSize * MonoVoxelEngine.ChunkSize ) / 2,
+                ( MonoVoxelEngine.GridSize * MonoVoxelEngine.ChunkSize ),
+                ( MonoVoxelEngine.GridSize * MonoVoxelEngine.ChunkSize ) / 2
+            );
+        }
+
+        public void RotatePitch( float delta_y ) {
+            m_pitch -= delta_y;
+            m_pitch = Math.Clamp( m_pitch, m_pitch_min, m_pitch_max );
+        }
+
+        public void RotateYaw( float delta_x )
+            => m_yaw += delta_x;
+
+        public void Rotate( Vector2 rotation ) {
+            RotateYaw( rotation.X );
+            RotatePitch( rotation.Y );
+        }
+
+        public void Rotate( float yaw, float pitch ) {
+            RotateYaw( yaw );
+            RotatePitch( pitch );
+        }
+
+        public void MoveLeft( float velocity )
+            => m_location -= m_right * velocity;
+
+        public void MoveRight( float velocity )
+            => m_location += m_right * velocity;
+
+        public void MoveUp( float velocity )
+            => m_location += m_up * velocity;
+
+        public void MoveDown( float velocity )
+            => m_location -= m_up * velocity;
+
+        public void MoveForward( float velocity )
+            => m_location += m_forward * velocity;
+
+        public void MoveBackward( float velocity )
+            => m_location -= m_forward * velocity;
+
+        private void UpdateForward( ) {
+            m_forward.X = MathF.Cos( m_yaw ) * MathF.Cos( m_pitch );
+            m_forward.Y = MathF.Sin( m_pitch );
+            m_forward.Z = MathF.Sin( m_yaw ) * MathF.Cos( m_pitch );
+
+            m_forward.Normalize( );
+        }
+
+        private void UpdateRight( ) {
+            m_right = Vector3.Cross( m_forward, new Vector3( 0.0f, 1.0f, 0.0f ) );
+            m_right.Normalize( );
+        }
+
+        private void UpdateUp( ) {
+            m_up = Vector3.Cross( m_right, m_forward );
+            m_up.Normalize( );
+        }
+
+        public void Tick( GraphicsDevice device ) {
+            var aspect = (float)device.PresentationParameters.BackBufferWidth / (float)device.PresentationParameters.BackBufferHeight;
+
+            UpdateForward( );
+            UpdateRight( );
+            UpdateUp( );
+
+            m_projection = Matrix.CreatePerspectiveFieldOfView( m_fov, aspect, 0.1f, 100.0f );
+            m_view       = Matrix.CreateLookAt( m_location, m_location + m_forward, m_up );
+            m_world      = Matrix.CreateTranslation( Vector3.Zero );
+
+            Matrix.Multiply( ref m_world, ref m_view, out m_cache );
+            Matrix.Multiply( ref m_cache, ref m_projection, out m_cache );
+        }
+
+    }
+
+}
