@@ -5,13 +5,19 @@ namespace MonoVoxel.Engine.Entities {
     public class MonoVoxelEntityPlayer : MonoVoxelEntity {
 
         private float m_speed;
-        private Vector2 m_mouse_cache;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MonoVoxelEntityPlayer( ) {
             m_speed = 2.0f;
-            m_mouse_cache = Vector2.Zero;
         }
 
+        /// <summary>
+        /// Tick the player.
+        /// </summary>
+        /// <param name="game_time" >Current tick (Update) game time</param>
+        /// <param name="game" >Current game instance</param>
         public override void Tick( GameTime game_time, MonoVoxelGame game ) {
             if ( !game.IsActive )
                 return;
@@ -20,9 +26,7 @@ namespace MonoVoxel.Engine.Entities {
             var camera    = game.Engine.Camera;
             var mouse     = game.Inputs.GetAxis( 1, 0 );
 
-            camera.Rotate( ( mouse - m_mouse_cache ) * 0.002f );
-
-            m_mouse_cache = mouse;
+            camera.Rotate( mouse * 0.002f );
 
             if ( game.Inputs.Evaluate( "MoveForward", true ) )
                 camera.MoveForward( velocity );

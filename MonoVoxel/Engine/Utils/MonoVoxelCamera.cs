@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoVoxel.Engine.Voxels;
 using System;
 
 namespace MonoVoxel.Engine.Utils {
@@ -33,6 +32,9 @@ namespace MonoVoxel.Engine.Utils {
 
         public Matrix Cache => m_cache;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MonoVoxelCamera( ) { 
             m_projection = Matrix.Identity;
             m_view       = Matrix.Identity;
@@ -55,42 +57,86 @@ namespace MonoVoxel.Engine.Utils {
             );
         }
 
+        /// <summary>
+        /// Rotate pitch.
+        /// </summary>
+        /// <param name="delta_y" >Delta pitch in radians</param>
         public void RotatePitch( float delta_y ) {
             m_pitch -= delta_y;
             m_pitch = Math.Clamp( m_pitch, m_pitch_min, m_pitch_max );
         }
 
+        /// <summary>
+        /// Rotate yaw.
+        /// </summary>
+        /// <param name="delta_x" >Delta yaw in radians</param>
         public void RotateYaw( float delta_x )
             => m_yaw += delta_x;
 
+        /// <summary>
+        /// Rotate pitch and yaw.
+        /// </summary>
+        /// <param name="rotation" >Rotation for pitch and yaw, vector in radians</param>
         public void Rotate( Vector2 rotation ) {
             RotateYaw( rotation.X );
             RotatePitch( rotation.Y );
         }
 
+        /// <summary>
+        /// Rotate pitch and yaw.
+        /// </summary>
+        /// <param name="yaw" >Delta yaw in radians</param>
+        /// <param name="pitch" >Delta pitch in radians</param>
         public void Rotate( float yaw, float pitch ) {
             RotateYaw( yaw );
             RotatePitch( pitch );
         }
 
+        /// <summary>
+        /// Move to the left.
+        /// </summary>
+        /// <param name="velocity" >Movement velocity</param>
         public void MoveLeft( float velocity )
             => m_location -= m_right * velocity;
 
+        /// <summary>
+        /// Move to the right.
+        /// </summary>
+        /// <param name="velocity" >Movement velocity</param>
         public void MoveRight( float velocity )
             => m_location += m_right * velocity;
 
+        /// <summary>
+        /// Move up.
+        /// </summary>
+        /// <param name="velocity" >Movement velocity</param>
         public void MoveUp( float velocity )
             => m_location += m_up * velocity;
 
+        /// <summary>
+        /// Move down
+        /// </summary>
+        /// <param name="velocity" >Movement velocity</param>
         public void MoveDown( float velocity )
             => m_location -= m_up * velocity;
 
+        /// <summary>
+        /// Move forward.
+        /// </summary>
+        /// <param name="velocity" >Movement velocity</param>
         public void MoveForward( float velocity )
             => m_location += m_forward * velocity;
 
+        /// <summary>
+        /// Move backward.
+        /// </summary>
+        /// <param name="velocity" >Movement velocity</param>
         public void MoveBackward( float velocity )
             => m_location -= m_forward * velocity;
 
+        /// <summary>
+        /// Update forward vector.
+        /// </summary>
         private void UpdateForward( ) {
             m_forward.X = MathF.Cos( m_yaw ) * MathF.Cos( m_pitch );
             m_forward.Y = MathF.Sin( m_pitch );
@@ -99,16 +145,26 @@ namespace MonoVoxel.Engine.Utils {
             m_forward.Normalize( );
         }
 
+        /// <summary>
+        /// Update right vector.
+        /// </summary>
         private void UpdateRight( ) {
             m_right = Vector3.Cross( m_forward, new Vector3( 0.0f, 1.0f, 0.0f ) );
             m_right.Normalize( );
         }
 
+        /// <summary>
+        /// Update up vector.
+        /// </summary>
         private void UpdateUp( ) {
             m_up = Vector3.Cross( m_right, m_forward );
             m_up.Normalize( );
         }
 
+        /// <summary>
+        /// Tick camera, update matricies.
+        /// </summary>
+        /// <param name="device" >Current graphics device instance</param>
         public void Tick( GraphicsDevice device ) {
             var aspect = (float)device.PresentationParameters.BackBufferWidth / (float)device.PresentationParameters.BackBufferHeight;
 

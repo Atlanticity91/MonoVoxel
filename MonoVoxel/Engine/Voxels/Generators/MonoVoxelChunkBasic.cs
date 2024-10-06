@@ -5,8 +5,18 @@ namespace MonoVoxel.Engine.Voxels.Generators {
 
     public sealed class MonoVoxelChunkBasic : MonoVoxelChunkGenerator {
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MonoVoxelChunkBasic( ) { }
 
+        /// <summary>
+        /// Generate chunk voxels.
+        /// </summary>
+        /// <param name="noise" >Noise generator</param>
+        /// <param name="voxels" >Reference to voxels array</param>
+        /// <param name="chunk" >Current chunk</param>
+        /// <param name="voxel_offset" >Chunk voxel offset fron voxels array start</param>
         private void GenerateChunk( ref OpenSimplexNoise noise, ref byte[] voxels, MonoVoxelChunk chunk, int voxel_offset ) {
             var grid_position = chunk.VoxelGrid * MonoVoxelEngine.ChunkSize;
 
@@ -24,6 +34,11 @@ namespace MonoVoxel.Engine.Voxels.Generators {
             }
         }
 
+        /// <summary>
+        /// Generate basic world.
+        /// </summary>
+        /// <param name="chunks" >Reference to grid chunk array</param>
+        /// <param name="voxels" >Reference to voxels array</param>
         public override void Generate( ref MonoVoxelChunk[] chunks, ref byte[] voxels ) {
             var noise = new OpenSimplexNoise( );
 

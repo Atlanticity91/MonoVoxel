@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Input;
 using MonoVoxel.Engine;
 using MonoVoxel.Engine.Ressources;
 using MonoVoxel.Inputs;
+using MonoVoxel.Inputs.Devices;
+using MonoVoxel.Inputs.Queries;
 using MonoVoxel.UX;
 
 namespace MonoVoxel {
@@ -22,6 +24,9 @@ namespace MonoVoxel {
         public MonoVoxelEngine Engine => m_engine;
         public MonoUXManager UX => m_ux;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MonoVoxelGame( ) {
             m_graphics = new GraphicsDeviceManager( this );
 
@@ -32,6 +37,9 @@ namespace MonoVoxel {
             m_graphics.PreferredBackBufferHeight = 720;
         }
 
+        /// <summary>
+        /// Initialize the current game instance.
+        /// </summary>
         protected override void Initialize( ) {
             m_inputs  = new MonoInputManager( );
             m_refresh = new Color( 0.1f, 0.16f, 0.25f, 1.0f );
@@ -39,6 +47,9 @@ namespace MonoVoxel {
             base.Initialize( );
         }
 
+        /// <summary>
+        /// Create elements that require the graphics device & load game content.
+        /// </summary>
         protected override void LoadContent( ) {
             m_ressources = new MonoVoxelRessourceManager( Content );
             m_engine     = new MonoVoxelEngine( GraphicsDevice );
@@ -56,7 +67,7 @@ namespace MonoVoxel {
             m_ressources.LoadMaterial( "Block", "materials/chunk_block" );
             m_ressources.LoadMaterial( "Skybox", "materials/skybox" );
 
-            m_ressources.CreateBlocks(
+            m_ressources.AddBlocks(
                 new( MonoVoxelBlockManager.UV( 1, 0 ) ),
                 new( MonoVoxelBlockManager.UV( 2, 0 ) ),
                 new( MonoVoxelBlockManager.UV( 3, 0 ) ),
@@ -81,12 +92,20 @@ namespace MonoVoxel {
             m_engine.Generate( );
         }
 
+        /// <summary>
+        /// Update the game.
+        /// </summary>
+        /// <param name="game_time" >Current update game time</param>
         protected override void Update( GameTime game_time ) {
             m_inputs.Tick( );
             m_engine.Tick( game_time, this );
             m_ux.Tick( game_time, this );
         }
 
+        /// <summary>
+        /// Draw the game.
+        /// </summary>
+        /// <param name="game_time" >Current draw game time</param>
         protected override void Draw( GameTime game_time ) {
             GraphicsDevice.Clear( m_refresh );
 

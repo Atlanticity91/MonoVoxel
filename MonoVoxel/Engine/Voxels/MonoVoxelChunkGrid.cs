@@ -15,6 +15,10 @@ namespace MonoVoxel.Engine.Voxels {
         private List<MonoVoxelChunkGenerator> m_generators;
         private byte[] m_voxels;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="device" >Current graphics device instance</param>
         public MonoVoxelChunkGrid( GraphicsDevice device ) {
             m_mesh       = new MonoVoxelChunkMesh( device );
             m_chunks     = new MonoVoxelChunk[ MonoVoxelEngine.GridVolume ];
@@ -25,11 +29,18 @@ namespace MonoVoxel.Engine.Voxels {
             m_voxels = new byte[ MonoVoxelEngine.GridVolume * MonoVoxelEngine.ChunkVolume ];
         }
         
+        /// <summary>
+        /// Generate world chunks.
+        /// </summary>
         public void GenerateChunks( ) {
             foreach ( var generator in m_generators )
                 generator.Generate( ref m_chunks, ref m_voxels );
         }
 
+        /// <summary>
+        /// Rebuild voxels geometry.
+        /// </summary>
+        /// <param name="block_manager" >Current block manager instance</param>
         private void RebuildGeometry( MonoVoxelBlockManager block_manager ) {
             foreach ( var chunk in m_chunks )
                 chunk.BuildGeometry( block_manager, m_voxels );
@@ -37,6 +48,12 @@ namespace MonoVoxel.Engine.Voxels {
             m_rebuild = false;
         }
 
+        /// <summary>
+        /// Draw chunks.
+        /// </summary>
+        /// <param name="device" >Current graphics device instance</param>
+        /// <param name="material" >Current material instance</param>
+        /// <param name="mvp" >Current camera MVP matrix</param>
         private void DrawChunks( GraphicsDevice device, Effect material, Matrix mvp ) {
             foreach ( var chunk in m_chunks ) {
                 if ( chunk.VerticeCount > 0 )
@@ -44,6 +61,12 @@ namespace MonoVoxel.Engine.Voxels {
             }
         }
 
+        /// <summary>
+        /// Draw the grid.
+        /// </summary>
+        /// <param name="device" >Current graphics device instance</param>
+        /// <param name="ressources" >Current ressource manager instance</param>
+        /// <param name="camera" >Current camera instance</param>
         public void Draw( GraphicsDevice device, MonoVoxelRessourceManager ressources, MonoVoxelCamera camera ) {
             var material = ressources.GetMaterial( "Block" );
             var texture  = ressources.GetTexture( "Terrain" );

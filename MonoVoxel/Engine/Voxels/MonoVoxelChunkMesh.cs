@@ -12,6 +12,10 @@ namespace MonoVoxel.Engine.Voxels {
         private MonoVoxelMesh<MonoVoxelChunkVertice> m_mesh;
         private int m_vertices;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="device" >Current graphics device instance</param>
         public MonoVoxelChunkMesh( GraphicsDevice device ) {
             m_mesh     = new MonoVoxelMesh<MonoVoxelChunkVertice>( device, MonoVoxelEngine.ChunkVolume * VertexCount, MonoVoxelEngine.ChunkVolume * IndexCount );
             m_vertices = 0;
@@ -19,6 +23,9 @@ namespace MonoVoxel.Engine.Voxels {
             GenerateIndicies( );
         }
 
+        /// <summary>
+        /// Generate vertex indicies.
+        /// </summary>
         private void GenerateIndicies( ) {
             var vertice_indicies = new int[ 6 ]{ 0, 1, 2, 2, 3, 0 };
             var stride = 0;
@@ -41,12 +48,25 @@ namespace MonoVoxel.Engine.Voxels {
             }
         }
 
+        /// <summary>
+        /// Push vertices to the geometry.
+        /// </summary>
+        /// <param name="vertixe_count" >Vertice count</param>
+        /// <param name="vertices" >Array of vertices</param>
+        /// <param name="location" >Chunk matrix location</param>
         public void Push( int vertixe_count, MonoVoxelChunkVertice[] vertices, Matrix location ) {
             m_mesh.SetVertices( m_vertices, vertixe_count, vertices );
 
             m_vertices += vertixe_count;
         }
 
+        /// <summary>
+        /// Draw a chunk.
+        /// </summary>
+        /// <param name="device" >Current graphics device instance</param>
+        /// <param name="material" >Current material instance</param>
+        /// <param name="chunk" >Current chunk to draw</param>
+        /// <param name="mvp" >Current camera MVP matrix</param>
         public void Draw( GraphicsDevice device, Effect material, MonoVoxelChunk chunk, Matrix mvp ) {
             material.Parameters[ "WorldTransform" ].SetValue( chunk.Location * mvp );
             material.CurrentTechnique.Passes[ 0 ].Apply( );
