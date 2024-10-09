@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoVoxel.Engine.Entities;
+using MonoVoxel.Engine.Ressources;
 using MonoVoxel.Engine.Utils;
 using MonoVoxel.Engine.Voxels;
 using System;
@@ -42,8 +43,9 @@ namespace MonoVoxel.Engine {
         /// <summary>
         /// Generate a voxel world.
         /// </summary>
-        public void Generate( ) {
-            m_grid.GenerateChunks( );
+        /// <param name="block_manager" >Current block manager instance</param>
+        public void Generate( MonoVoxelBlockManager block_manager ) {
+            m_grid.GenerateChunks( block_manager );
         }
 
         /// <summary>

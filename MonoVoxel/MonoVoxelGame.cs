@@ -89,7 +89,7 @@ namespace MonoVoxel {
                 )
             );
 
-            m_engine.Generate( );
+            m_engine.Generate( m_ressources.BlockManager );
         }
 
         /// <summary>

@@ -16,21 +16,27 @@ namespace MonoVoxel.Engine.Utils {
         private Vector3 m_forward;
 
         private float m_fov;
+        private float m_near;
+        private float m_far;
+        private float m_aspect;
         private float m_yaw;
         private float m_pitch;
         private float m_pitch_min;
         private float m_pitch_max;
         private Vector3 m_location;
 
+        public Vector3 Up        => m_up;
+        public Vector3 Right     => m_right;
+        public Vector3 Forward   => m_forward;
+        public float Near        => m_near;
+        public float Far         => m_far;
+        public float Yaw         => m_yaw;
+        public float Pitch       => m_pitch;
+        public Vector3 Location  => m_location;
         public Matrix Projection => m_projection;
-        public Matrix View => m_view;
-        public Matrix World => m_world;
-
-        public float Yaw => m_yaw;
-        public float Pitch => m_pitch;
-        public Vector3 Location => m_location;
-
-        public Matrix Cache => m_cache;
+        public Matrix View       => m_view;
+        public Matrix World      => m_world;
+        public Matrix Cache      => m_cache;
 
         /// <summary>
         /// Constructor
@@ -45,6 +51,9 @@ namespace MonoVoxel.Engine.Utils {
             m_forward = new Vector3( 0.0f, 0.0f, -1.0f );
 
             m_fov       = MathHelper.ToRadians( 50 );
+            m_near      = 0.1f;
+            m_far       = 100.0f;
+            m_aspect    = 0.0f;
             m_yaw       = 0.0f;
             m_pitch     = 0.0f;
             m_pitch_min = -MathHelper.ToRadians( 89 );
@@ -166,19 +175,29 @@ namespace MonoVoxel.Engine.Utils {
         /// </summary>
         /// <param name="device" >Current graphics device instance</param>
         public void Tick( GraphicsDevice device ) {
-            var aspect = (float)device.PresentationParameters.BackBufferWidth / (float)device.PresentationParameters.BackBufferHeight;
+            m_aspect = (float)device.PresentationParameters.BackBufferWidth / (float)device.PresentationParameters.BackBufferHeight;
 
             UpdateForward( );
             UpdateRight( );
             UpdateUp( );
 
-            m_projection = Matrix.CreatePerspectiveFieldOfView( m_fov, aspect, 0.1f, 100.0f );
+            m_projection = Matrix.CreatePerspectiveFieldOfView( m_fov, m_aspect, m_near, m_far );
             m_view       = Matrix.CreateLookAt( m_location, m_location + m_forward, m_up );
             m_world      = Matrix.CreateTranslation( Vector3.Zero );
 
             Matrix.Multiply( ref m_world, ref m_view, out m_cache );
             Matrix.Multiply( ref m_cache, ref m_projection, out m_cache );
         }
+
+        public Vector2 GetAspect( ) {
+            return new(
+                2.0f * MathF.Atan( MathF.Tan( m_fov * 0.5f ) * m_aspect ),
+                m_fov
+            );
+        }
+
+        public Vector2 GetHalfAspect( )
+            => GetAspect( ) * 0.5f;
 
     }
 

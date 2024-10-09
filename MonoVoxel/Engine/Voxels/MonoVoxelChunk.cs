@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoVoxel.Engine.Ressources;
 using MonoVoxel.Engine.Utils;
+using System;
 
 namespace MonoVoxel.Engine.Voxels {
 
@@ -9,6 +10,7 @@ namespace MonoVoxel.Engine.Voxels {
         private int m_vertice_count;
         private int m_voxel_offset;
         private MonoVoxelPoint m_voxel_grid;
+        private Vector3 m_center;
         private Matrix m_location;
         private MonoVoxelChunkVertice[] m_vertices;
 
@@ -28,6 +30,7 @@ namespace MonoVoxel.Engine.Voxels {
             m_vertice_count = 0;
             m_voxel_offset  = voxel_offset;
             m_voxel_grid    = new MonoVoxelPoint( x, y, z );
+            m_center        = m_voxel_grid.ToVector3( ) * MonoVoxelEngine.ChunkSize + new Vector3( MonoVoxelEngine.ChunkSize * 0.5f );
             m_location      = Matrix.CreateTranslation( x * MonoVoxelEngine.ChunkSize, y * MonoVoxelEngine.ChunkSize, z * MonoVoxelEngine.ChunkSize );
             m_vertices      = new MonoVoxelChunkVertice[ MonoVoxelEngine.ChunkVolume * 12 ];
         }
@@ -323,6 +326,43 @@ namespace MonoVoxel.Engine.Voxels {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Get if chunk can be draw aka is in camera frustum.
+        /// </summary>
+        /// <param name="camera" >Current camera instance</param>
+        /// <returns>True when chunk is in camera frustum</returns>
+        public bool GetCanDraw( MonoVoxelCamera camera ) {
+            var half_aspect   = camera.GetHalfAspect( );
+            var factor_y      = 1.0f / MathF.Cos( half_aspect.Y );
+            var tan_y         = MathF.Tan( half_aspect.Y );
+            var factor_x      = 1.0f / MathF.Cos( half_aspect.X );
+            var tan_x         = MathF.Tan( half_aspect.X );
+            var sphere_vector = m_center - camera.Location;
+            var sphere_radius = ( MonoVoxelEngine.ChunkSize * 0.5f ) * MathF.Sqrt( 3 );
+
+            //outside the NEAR and FAR planes?
+            var sz = Vector3.Dot( sphere_vector, camera.Forward );
+
+            if ( !( camera.Near - sphere_radius <= sz ) && !( sz <= camera.Far + sphere_radius) )
+                return false;
+
+            // outside the TOP and BOTTOM planes?
+            var sy = Vector3.Dot( sphere_vector, camera.Up );
+            var dist = factor_y * sphere_radius + sz * tan_y;
+            
+            if ( !( -dist <= sy ) && !( sy <= dist ) )
+                return false;
+
+            // outside the LEFT and RIGHT planes?
+            var sx = Vector3.Dot( sphere_vector, camera.Right );
+            dist = factor_x * sphere_radius + sz * tan_x;
+
+            if ( !( -dist <= sx ) && !( sx <= dist ) )
+                return false;
+
+            return true;
         }
 
     }

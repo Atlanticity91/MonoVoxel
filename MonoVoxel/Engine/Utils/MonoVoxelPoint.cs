@@ -1,4 +1,6 @@
-﻿namespace MonoVoxel.Engine.Utils {
+﻿using Microsoft.Xna.Framework;
+
+namespace MonoVoxel.Engine.Utils {
     
     public struct MonoVoxelPoint {
 
@@ -31,6 +33,13 @@
         /// <returns>String version of the point</returns>
         public override string ToString( )
             => $"[ x : {X}, y : {Y}, z : {Z}]";
+
+        /// <summary>
+        /// Cast 3d integer point to 3d vector.
+        /// </summary>
+        /// <returns>Float vector that represent the point</returns>
+        public Vector3 ToVector3( )
+            => new( X, Y, Z );
 
         /// <summary>
         /// Addition operator.

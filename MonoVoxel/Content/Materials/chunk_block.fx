@@ -20,7 +20,14 @@ struct VertexShaderOutput {
     float2 UV : TEXCOORD0;
     int BlockID : TEXCOORD1;
     int FaceID : TEXCOORD2;
-    float4 Color : COLOR0;
+    float AO : TEXCOORD3;
+};
+
+static const float uv_size = 1.0 / 16.0;
+static const float ambient_occlusion[ 6 ] = { 
+    1.0, 0.5, 
+    0.5, 0.8, 
+    0.5, 0.8
 };
 
 VertexShaderOutput MainVS( in VertexShaderInput input ) {
@@ -30,17 +37,26 @@ VertexShaderOutput MainVS( in VertexShaderInput input ) {
     output.UV       = float2( input.Metadata.x, input.Metadata.y );
     output.BlockID  = (int) input.Metadata.z;
     output.FaceID   = (int) input.Metadata.w;
-    output.Color    = float4(1.0, 1.0, 1.0, 1.0);
+    output.AO       = ambient_occlusion[ output.FaceID ];
     
 	return output;
 }
 
 // --- FRAGMENT ---
-Texture2D Diffuse : register(t0);
-sampler2D DiffuseSampler = sampler_state { Texture = <Diffuse>; };
+Texture2D Texture;
+sampler2D TextureSampler = sampler_state {
+    Texture = <Texture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    ADDRESSU = Wrap;
+    ADDRESSV = Wrap;
+};
 
 float4 MainPS(VertexShaderOutput input) : COLOR {
-    return tex2D(DiffuseSampler, input.UV) * input.Color;
+    float3 color = tex2D( TextureSampler, input.UV ).rgb;
+    
+    return float4( color, input.AO );
 }
 
 // --- ENTRY ---
